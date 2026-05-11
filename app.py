@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import joblib
 
+# =========================================================
+# CONFIGURACIÓN GENERAL
+# =========================================================
 st.set_page_config(
     page_title="RiskAI Bogotá",
     page_icon="🚦",
@@ -9,9 +12,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# =========================
+# =========================================================
 # CARGA DEL MODELO
-# =========================
+# =========================================================
 data = joblib.load("pipeline.pkl")
 
 modelo = data["modelo"]
@@ -19,11 +22,12 @@ scaler = data["scaler"]
 columnas = data["columnas"]
 localidades = data["localidades"]
 
-# =========================
+# =========================================================
 # CSS
-# =========================
+# =========================================================
 st.markdown("""
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 html, body, [class*="css"] {
@@ -225,6 +229,7 @@ html, body, [class*="css"] {
     word-break: normal;
 }
 
+/* MODEL CARD */
 .model-card {
     border-left: 3px solid #00FFF0;
 }
@@ -362,92 +367,133 @@ html, body, [class*="css"] {
 </style>
 """, unsafe_allow_html=True)
 
-# =========================
+# =========================================================
 # SIDEBAR
-# =========================
+# =========================================================
 with st.sidebar:
+
     st.markdown("""
-    <div class="sidebar-title">🚦 <span>RiskAI</span> Bogotá</div>
-    <div class="sidebar-copy">
-        Modelo predictivo para estimar riesgo de siniestros viales con víctimas.
+    <div class="sidebar-title">
+    🚦 <span>RiskAI</span> Bogotá
     </div>
+
+    <div class="sidebar-copy">
+    Modelo predictivo para estimar riesgo
+    de siniestros viales con víctimas.
+    </div>
+
     <div class="neon-divider"></div>
-    <div class="sidebar-section">PARÁMETROS DEL ESCENARIO</div>
+
+    <div class="sidebar-section">
+    PARÁMETROS DEL ESCENARIO
+    </div>
     """, unsafe_allow_html=True)
 
     hora = st.slider("🕘 Hora del día", 0, 23, 12)
-    mes = st.selectbox("🗓️ Mes", list(range(1, 13)))
-    localidad = st.selectbox("📍 Localidad", localidades)
+
+    mes = st.selectbox(
+        "🗓️ Mes",
+        list(range(1, 13))
+    )
+
+    localidad = st.selectbox(
+        "📍 Localidad",
+        localidades
+    )
 
     st.markdown("""
     <div class="help-card">
-        ℹ️ &nbsp; Ajusta las condiciones del escenario y ejecuta la predicción para conocer el nivel de riesgo estimado.
+    ℹ️ Ajusta las condiciones del escenario y ejecuta la predicción
+    para conocer el nivel de riesgo estimado.
     </div>
     """, unsafe_allow_html=True)
 
-# =========================
-# CONTENIDO PRINCIPAL
-# =========================
+# =========================================================
+# HEADER
+# =========================================================
 st.markdown("""
-<div class="top-label">🛡️ SISTEMA INTELIGENTE DE RIESGO VIAL</div>
+<div class="top-label">
+🛡️ SISTEMA INTELIGENTE DE RIESGO VIAL
+</div>
 
 <div class="main-title">
-    Predicción de riesgo de<br>
-    siniestros viales en <span>Bogotá</span>
+Predicción de riesgo de<br>
+siniestros viales en <span>Bogotá</span>
 </div>
 
 <div class="title-line"></div>
 """, unsafe_allow_html=True)
 
-# Card escenario
+# =========================================================
+# CARD ESCENARIO
+# =========================================================
 st.markdown(f"""
 <div class="cyber-card">
-    <div class="card-title">ESCENARIO SELECCIONADO</div>
 
-    <div class="scenario-grid">
-        <div class="scenario-item">
-            <div class="scenario-label">🕘 Hora</div>
-            <div class="scenario-value">{hora}:00</div>
-        </div>
+<div class="card-title">
+ESCENARIO SELECCIONADO
+</div>
 
-        <div class="scenario-item">
-            <div class="scenario-label">🗓️ Mes</div>
-            <div class="scenario-value">{mes}</div>
-        </div>
+<div class="scenario-grid">
 
-        <div class="scenario-item">
-            <div class="scenario-label">📍 Localidad</div>
-            <div class="scenario-value">{localidad}</div>
-        </div>
-    </div>
+<div class="scenario-item">
+<div class="scenario-label">🕘 Hora</div>
+<div class="scenario-value">{hora}:00</div>
+</div>
+
+<div class="scenario-item">
+<div class="scenario-label">🗓️ Mes</div>
+<div class="scenario-value">{mes}</div>
+</div>
+
+<div class="scenario-item">
+<div class="scenario-label">📍 Localidad</div>
+<div class="scenario-value">{localidad}</div>
+</div>
+
+</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Lectura del modelo
+# =========================================================
+# LECTURA DEL MODELO
+# =========================================================
 st.markdown("""
 <div class="cyber-card model-card">
-    <div class="card-title">⚙️ LECTURA DEL MODELO</div>
 
-    <div class="model-text">
-        La salida representa la probabilidad estimada de riesgo alto
-        según las variables disponibles en el modelo.
-    </div>
+<div class="card-title">
+⚙️ LECTURA DEL MODELO
+</div>
 
-    <div class="model-list">
-        ☑ El modelo analiza patrones históricos de siniestros.<br>
-        ☑ Considera la hora, el mes y la localidad seleccionada.<br>
-        ☑ Útil para priorizar intervenciones y vigilancia vial.
-    </div>
+<div class="model-text">
+La salida representa la probabilidad estimada de riesgo alto
+según las variables disponibles en el modelo.
+</div>
+
+<div class="model-list">
+☑ El modelo analiza patrones históricos de siniestros.<br>
+☑ Considera la hora, el mes y la localidad seleccionada.<br>
+☑ Útil para priorizar intervenciones y vigilancia vial.
+</div>
+
 </div>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# BOTÓN
+# =========================================================
 predecir = st.button("🔍  PREDECIR RIESGO")
 
-# =========================
+# =========================================================
 # PREDICCIÓN
-# =========================
+# =========================================================
 if predecir:
-    input_data = pd.DataFrame(0, index=[0], columns=columnas)
+
+    input_data = pd.DataFrame(
+        0,
+        index=[0],
+        columns=columnas
+    )
 
     input_data["HORA"] = hora
     input_data["MES"] = mes
@@ -457,7 +503,9 @@ if predecir:
     if col_localidad in input_data.columns:
         input_data[col_localidad] = 1
 
-    input_data[["HORA", "MES"]] = scaler.transform(input_data[["HORA", "MES"]])
+    input_data[["HORA", "MES"]] = scaler.transform(
+        input_data[["HORA", "MES"]]
+    )
 
     pred = modelo.predict(input_data)[0]
     prob = modelo.predict_proba(input_data)[0][1]
@@ -466,54 +514,78 @@ if predecir:
 
     if pred == 1:
         titulo = "⚠️ RIESGO ALTO"
-        texto = "El modelo estima una mayor probabilidad de que el siniestro involucre heridos o fallecidos."
+        texto = """
+        El modelo estima una mayor probabilidad de que el siniestro
+        involucre heridos o fallecidos.
+        """
         color = "#FF4B5C"
     else:
         titulo = "✅ RIESGO BAJO"
-        texto = "El modelo estima una mayor probabilidad de que el siniestro sea solo con daños."
+        texto = """
+        El modelo estima una mayor probabilidad de que el siniestro
+        sea únicamente con daños.
+        """
         color = "#00FFF0"
 
     st.markdown(f"""
     <div class="result-card">
-        <div class="card-title">RESULTADO DE LA PREDICCIÓN</div>
 
-        <div class="result-grid">
-            <div>
-                <div class="gauge" style="--percent: {prob_pct}%;">
-                    <div class="gauge-inner">
-                        <div class="gauge-number">{prob_pct}%</div>
-                        <div class="gauge-label">Probabilidad<br>de riesgo alto</div>
-                    </div>
+    <div class="card-title">
+    RESULTADO DE LA PREDICCIÓN
+    </div>
+
+    <div class="result-grid">
+
+    <div>
+        <div class="gauge" style="--percent: {prob_pct}%;">
+            <div class="gauge-inner">
+                <div class="gauge-number">{prob_pct}%</div>
+                <div class="gauge-label">
+                Probabilidad<br>de riesgo alto
                 </div>
             </div>
+        </div>
+    </div>
 
-            <div>
-                <div class="risk-title" style="color:{color};">{titulo}</div>
-                <div class="risk-copy">{texto}</div>
-            </div>
+    <div>
+        <div class="risk-title" style="color:{color};">
+        {titulo}
         </div>
 
-        <div class="progress-label">
-            <div>Probabilidad estimada</div>
-            <div>{prob_pct}%</div>
+        <div class="risk-copy">
+        {texto}
         </div>
+    </div>
 
-        <div class="custom-progress">
-            <div class="custom-progress-fill" style="width:{prob_pct}%; background:{color};"></div>
+    </div>
+
+    <div class="progress-label">
+        <div>Probabilidad estimada</div>
+        <div>{prob_pct}%</div>
+    </div>
+
+    <div class="custom-progress">
+        <div class="custom-progress-fill"
+        style="width:{prob_pct}%; background:{color};">
         </div>
+    </div>
+
     </div>
     """, unsafe_allow_html=True)
 
-# =========================
+# =========================================================
 # FOOTER
-# =========================
+# =========================================================
 st.markdown("""
 <div class="footer-card">
-    🎓 Proyecto de Analítica Aplicada &nbsp; | &nbsp;
-    Universidad de La Sabana<br>
-    Integrantes:
-    <span>Tomás González</span> ·
-    <span>Nicolás Castillo</span> ·
-    <span>Ana Rodríguez</span>
+
+🎓 Proyecto de Analítica Aplicada |
+Universidad de La Sabana<br><br>
+
+Integrantes:
+<span>Tomás González</span> •
+<span>Nicolás Castillo</span> •
+<span>Ana Rodríguez</span>
+
 </div>
 """, unsafe_allow_html=True)
