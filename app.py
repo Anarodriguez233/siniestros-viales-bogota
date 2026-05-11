@@ -71,7 +71,7 @@ html, body, [class*="css"] {
 
 .hero-subtitle {
     font-size: 1.1rem;
-    color: #AAB7D4;
+    color: #DCE7FF;
     max-width: 830px;
     line-height: 1.6;
 }
@@ -91,7 +91,7 @@ html, body, [class*="css"] {
 .glass-card {
     padding: 24px;
     border-radius: 24px;
-    background: rgba(15, 23, 42, 0.72);
+    background: rgba(18, 28, 52, 0.88);
     border: 1px solid rgba(148, 163, 184, 0.16);
     box-shadow: 0 14px 40px rgba(0,0,0,0.28);
     min-height: 100%;
@@ -100,18 +100,19 @@ html, body, [class*="css"] {
 .section-title {
     font-size: 1.1rem;
     font-weight: 750;
-    color: #EAF2FF;
+    color: #FFFFFF;
     margin-bottom: 8px;
 }
 
 .section-caption {
     font-size: 0.92rem;
-    color: #94A3B8;
+    color: #D6E2FF;
     margin-bottom: 22px;
 }
 
 .metric-card {
     padding: 20px;
+    overflow-wrap: break-word;
     border-radius: 22px;
     background: linear-gradient(135deg, rgba(0,255,213,0.10), rgba(124,58,237,0.10));
     border: 1px solid rgba(0,255,213,0.20);
@@ -171,10 +172,55 @@ html, body, [class*="css"] {
 
 div[data-testid="stMetricValue"] {
     color: #00FFD5;
+    font-size: 3rem;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .stSlider [data-baseweb="slider"] > div {
     color: #00FFD5;
+}
+
+/* SELECTBOX */
+.stSelectbox label {
+    color: #F8FAFC !important;
+    font-weight: 600;
+}
+
+.stSelectbox div[data-baseweb="select"] > div {
+    background-color: rgba(255,255,255,0.92) !important;
+    color: #0F172A !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(0,255,213,0.25) !important;
+    font-weight: 600;
+}
+
+/* SLIDER LABELS */
+.stSlider label {
+    color: #F8FAFC !important;
+    font-weight: 600;
+}
+
+/* SIDEBAR TEXT */
+[data-testid="stSidebar"] * {
+    color: #EAF2FF;
+}
+
+/* MÉTRICAS */
+div[data-testid="metric-container"] {
+    background: rgba(15, 23, 42, 0.65);
+    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid rgba(0,255,213,0.10);
+}
+
+div[data-testid="stMetricLabel"] {
+    color: #D6E2FF !important;
+    font-weight: 600;
+    font-size: 1rem;
+}
 }
 
 [data-testid="stAlert"] {
@@ -361,4 +407,5 @@ st.markdown("""
     Versión conceptual V2 · Enfoque: predicción, comunicación del riesgo y apoyo a decisiones públicas.
 </div>
 """, unsafe_allow_html=True)
+
 
