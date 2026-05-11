@@ -1,6 +1,11 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import os
+
+# =========================================================
+# CONFIGURACIÓN GENERAL
+# =========================================================
 
 st.set_page_config(
     page_title="Siniestros viales en Bogotá",
@@ -9,15 +14,59 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-data = joblib.load("pipeline.pkl")
+# =========================================================
+# VALIDACIÓN DEL PIPELINE
+# =========================================================
 
-modelo = data["modelo"]
-scaler = data["scaler"]
-columnas = data["columnas"]
-localidades = data["localidades"]
+if not os.path.exists("pipeline.pkl"):
+
+    st.error("""
+    No se encontró el archivo pipeline.pkl
+
+    Verifica que esté subido en el mismo nivel de app.py
+    """)
+
+    st.stop()
+
+if os.path.getsize("pipeline.pkl") == 0:
+
+    st.error("""
+    El archivo pipeline.pkl está vacío o corrupto.
+    Súbelo nuevamente.
+    """)
+
+    st.stop()
+
+# =========================================================
+# CARGA DEL MODELO
+# =========================================================
+
+try:
+
+    data = joblib.load("pipeline.pkl")
+
+    modelo = data["modelo"]
+    scaler = data["scaler"]
+    columnas = data["columnas"]
+    localidades = data["localidades"]
+
+except Exception as e:
+
+    st.error(f"""
+    Error cargando el modelo:
+
+    {e}
+    """)
+
+    st.stop()
+
+# =========================================================
+# CSS
+# =========================================================
 
 st.markdown("""
 <style>
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
 
 html, body, [class*="css"] {
@@ -25,7 +74,13 @@ html, body, [class*="css"] {
 }
 
 .stApp {
-    background: linear-gradient(135deg, #020713 0%, #050B18 50%, #020713 100%);
+    background: linear-gradient(
+        135deg,
+        #020713 0%,
+        #050B18 50%,
+        #020713 100%
+    );
+
     color: #F8FAFC;
 }
 
@@ -39,7 +94,12 @@ html, body, [class*="css"] {
 }
 
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #081120 0%, #07101E 100%);
+    background: linear-gradient(
+        180deg,
+        #081120 0%,
+        #07101E 100%
+    );
+
     border-right: 2px solid rgba(0,255,240,0.25);
 }
 
@@ -66,7 +126,13 @@ html, body, [class*="css"] {
 
 .neon-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, #00FFF0, transparent);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        #00FFF0,
+        transparent
+    );
+
     margin: 2rem 0;
 }
 
@@ -137,12 +203,22 @@ html, body, [class*="css"] {
 .title-line {
     width: 130px;
     height: 2px;
-    background: linear-gradient(90deg, #00FFF0, transparent);
+    background: linear-gradient(
+        90deg,
+        #00FFF0,
+        transparent
+    );
+
     margin-bottom: 2.2rem;
 }
 
 .cyber-card {
-    background: linear-gradient(135deg, rgba(8,17,32,0.96), rgba(7,15,29,0.90));
+    background: linear-gradient(
+        135deg,
+        rgba(8,17,32,0.96),
+        rgba(7,15,29,0.90)
+    );
+
     border: 1px solid rgba(0,255,240,0.35);
     border-radius: 18px;
     padding: 2rem;
@@ -214,7 +290,12 @@ html, body, [class*="css"] {
 }
 
 .result-card {
-    background: linear-gradient(135deg, rgba(20,10,25,0.95), rgba(8,14,28,0.92));
+    background: linear-gradient(
+        135deg,
+        rgba(20,10,25,0.95),
+        rgba(8,14,28,0.92)
+    );
+
     border: 1px solid rgba(255,75,92,0.45);
     border-radius: 18px;
     padding: 2rem;
@@ -232,9 +313,14 @@ html, body, [class*="css"] {
     width: 165px;
     height: 165px;
     border-radius: 50%;
+
     background:
         radial-gradient(circle at center, #081120 58%, transparent 59%),
-        conic-gradient(var(--color) var(--percent), rgba(71,85,105,0.45) 0);
+        conic-gradient(
+            var(--color) var(--percent),
+            rgba(71,85,105,0.45) 0
+        );
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -248,6 +334,7 @@ html, body, [class*="css"] {
     color: #FFFFFF;
     font-size: 3rem;
     font-weight: 900;
+
     text-shadow:
         0 0 10px rgba(255,255,255,0.35),
         0 0 24px rgba(255,255,255,0.18);
@@ -269,10 +356,6 @@ html, body, [class*="css"] {
     color: #F8FAFC;
     line-height: 1.8;
     font-size: 1.08rem;
-    background: transparent !important;
-    border: none !important;
-    padding: 0 !important;
-    box-shadow: none !important;
 }
 
 .progress-label {
@@ -322,26 +405,32 @@ html, body, [class*="css"] {
     color: #00FFF0;
     font-weight: 700;
 }
+
 </style>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# SIDEBAR
+# =========================================================
+
 with st.sidebar:
+
     st.markdown("""
-<div class="sidebar-title">
-🚦 <span>Siniestros viales</span> Bogotá
-</div>
+    <div class="sidebar-title">
+    🚦 <span>Siniestros viales</span> Bogotá
+    </div>
 
-<div class="sidebar-copy">
-Modelo predictivo para estimar el riesgo
-de siniestros viales con víctimas.
-</div>
+    <div class="sidebar-copy">
+    Modelo predictivo para estimar el riesgo
+    de siniestros viales con víctimas.
+    </div>
 
-<div class="neon-divider"></div>
+    <div class="neon-divider"></div>
 
-<div class="sidebar-section">
-PARÁMETROS DEL ESCENARIO
-</div>
-""", unsafe_allow_html=True)
+    <div class="sidebar-section">
+    PARÁMETROS DEL ESCENARIO
+    </div>
+    """, unsafe_allow_html=True)
 
     hora = st.slider("Hora del día", 0, 23, 12)
 
@@ -360,18 +449,29 @@ PARÁMETROS DEL ESCENARIO
         "Diciembre": 12
     }
 
-    mes_nombre = st.selectbox("Mes", list(meses.keys()))
+    mes_nombre = st.selectbox(
+        "Mes",
+        list(meses.keys())
+    )
+
     mes = meses[mes_nombre]
 
-    localidad = st.selectbox("Localidad", localidades)
+    localidad = st.selectbox(
+        "Localidad",
+        localidades
+    )
 
     st.markdown("""
-<div class="help-card">
-Ajusta las condiciones del escenario que prefieras
-y ejecuta la predicción para conocer el nivel
-de riesgo estimado.
-</div>
-""", unsafe_allow_html=True)
+    <div class="help-card">
+    Ajusta las condiciones del escenario que prefieras
+    y ejecuta la predicción para conocer el nivel
+    de riesgo estimado.
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================================================
+# HEADER
+# =========================================================
 
 st.markdown("""
 <div class="top-label">
@@ -386,8 +486,13 @@ siniestros viales en <span>Bogotá</span>
 <div class="title-line"></div>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# ESCENARIO
+# =========================================================
+
 st.markdown(f"""
 <div class="cyber-card">
+
 <div class="card-title">
 ESCENARIO SELECCIONADO
 </div>
@@ -413,8 +518,13 @@ ESCENARIO SELECCIONADO
 </div>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# LECTURA DEL MODELO
+# =========================================================
+
 st.markdown("""
 <div class="cyber-card model-card">
+
 <div class="card-title">
 LECTURA DEL MODELO
 </div>
@@ -429,13 +539,27 @@ según las variables disponibles en el modelo.
 • Considera la hora, el mes y la localidad seleccionada.<br>
 • Útil para priorizar intervenciones y vigilancia vial.
 </div>
+
 </div>
 """, unsafe_allow_html=True)
 
+# =========================================================
+# BOTÓN
+# =========================================================
+
 predecir = st.button("EVALUAR RIESGO VIAL")
 
+# =========================================================
+# PREDICCIÓN
+# =========================================================
+
 if predecir:
-    input_data = pd.DataFrame(0, index=[0], columns=columnas)
+
+    input_data = pd.DataFrame(
+        0,
+        index=[0],
+        columns=columnas
+    )
 
     input_data["HORA"] = hora
     input_data["MES"] = mes
@@ -445,189 +569,282 @@ if predecir:
     if col_localidad in input_data.columns:
         input_data[col_localidad] = 1
 
-    input_data[["HORA", "MES"]] = scaler.transform(input_data[["HORA", "MES"]])
+    input_data[["HORA", "MES"]] = scaler.transform(
+        input_data[["HORA", "MES"]]
+    )
 
-    pred = modelo.predict(input_data)[0]
     prob = modelo.predict_proba(input_data)[0][1]
 
     prob_pct = int(prob * 100)
 
+    # =====================================================
+    # NIVELES DE RIESGO
+    # =====================================================
+
     if prob_pct < 35:
+
         titulo = "RIESGO BAJO"
+
         color = "#00FFF0"
-        texto = "El escenario presenta una probabilidad baja de riesgo alto. Se recomienda mantener monitoreo básico y usar este resultado como referencia comparativa."
+
+        texto = """
+        El escenario presenta una probabilidad baja de riesgo alto.
+        Se recomienda mantener monitoreo básico y usar este
+        resultado como referencia comparativa.
+        """
+
     elif prob_pct < 60:
+
         titulo = "RIESGO MODERADO"
+
         color = "#FFD166"
-        texto = "El escenario presenta un nivel intermedio de riesgo. Se recomienda observar condiciones adicionales como congestión, clima, eventos cercanos o volumen vehicular."
+
+        texto = """
+        El escenario presenta un nivel intermedio de riesgo.
+        Se recomienda observar condiciones adicionales
+        como congestión, clima o volumen vehicular.
+        """
+
     elif prob_pct < 80:
+
         titulo = "RIESGO ALTO"
+
         color = "#FF7B54"
-        texto = "El escenario presenta una probabilidad elevada de riesgo alto. Se recomienda priorizar vigilancia preventiva y revisar patrones históricos de la zona."
+
+        texto = """
+        El escenario presenta una probabilidad elevada
+        de riesgo alto. Se recomienda priorizar vigilancia
+        preventiva y monitoreo continuo.
+        """
+
     else:
+
         titulo = "RIESGO CRÍTICO"
+
         color = "#FF4B5C"
-        texto = "El escenario presenta una probabilidad crítica de riesgo alto. Se recomienda priorizar intervención, monitoreo y acciones preventivas inmediatas."
+
+        texto = """
+        El escenario presenta una probabilidad crítica
+        de riesgo alto. Se recomienda priorizar
+        intervención y acciones preventivas inmediatas.
+        """
+
+    # =====================================================
+    # CONFIANZA
+    # =====================================================
 
     confianza = int(abs(prob - 0.5) * 2 * 100)
 
     if confianza < 25:
+
         nivel_confianza = "Confianza baja"
-        lectura_confianza = "La predicción está cerca del punto de decisión. Se recomienda interpretarla con cautela."
+
+        lectura_confianza = """
+        La predicción está cerca del punto de decisión.
+        Se recomienda interpretarla con cautela.
+        """
+
     elif confianza < 55:
+
         nivel_confianza = "Confianza media"
-        lectura_confianza = "El modelo muestra una separación moderada frente al punto de decisión."
+
+        lectura_confianza = """
+        El modelo muestra una separación moderada
+        frente al punto de decisión.
+        """
+
     else:
+
         nivel_confianza = "Confianza alta"
-        lectura_confianza = "El modelo muestra una señal fuerte para este escenario."
+
+        lectura_confianza = """
+        El modelo muestra una señal fuerte
+        para este escenario.
+        """
+
+    # =====================================================
+    # INSIGHTS
+    # =====================================================
 
     insight = []
 
     if hora >= 18 or hora <= 5:
-        insight.append("La franja horaria seleccionada corresponde a horas de menor visibilidad o mayor complejidad operativa.")
+
+        insight.append("""
+        La franja horaria seleccionada corresponde
+        a horas de menor visibilidad.
+        """)
+
     elif 6 <= hora <= 9:
-        insight.append("La hora seleccionada coincide con una franja de alta movilidad matutina.")
+
+        insight.append("""
+        La hora seleccionada coincide con una franja
+        de alta movilidad matutina.
+        """)
+
     elif 16 <= hora <= 18:
-        insight.append("La hora seleccionada coincide con una franja de alta movilidad vespertina.")
-    else:
-        insight.append("La hora seleccionada corresponde a una franja intermedia de movilidad.")
 
-    if mes in [3, 4, 5, 9, 10, 11]:
-        insight.append("El mes seleccionado puede coincidir con periodos de actividad académica y laboral intensa.")
-    elif mes in [12, 1]:
-        insight.append("El mes seleccionado puede estar asociado con cambios en movilidad por vacaciones o temporada de fin de año.")
-    else:
-        insight.append("El mes seleccionado se interpreta como una condición temporal estándar dentro del modelo.")
+        insight.append("""
+        La hora seleccionada coincide con una franja
+        de alta movilidad vespertina.
+        """)
 
-    insight.append(f"La localidad seleccionada para el análisis es {localidad}, por lo que el resultado debe leerse como una estimación específica para este territorio.")
+    else:
+
+        insight.append("""
+        La hora seleccionada corresponde
+        a una franja intermedia de movilidad.
+        """)
+
+    insight.append(
+        f"La localidad analizada es {localidad}."
+    )
 
     insight_texto = " ".join(insight)
 
-    st.markdown(f"""
-<div class="result-card">
-
-<div class="card-title">
-RESULTADO DE LA PREDICCIÓN
-</div>
-
-<div class="result-grid">
-
-<div>
-<div class="gauge" style="--percent:{prob_pct}%; --color:{color};">
-<div class="gauge-inner">
-<div class="gauge-number">{prob_pct}%</div>
-<div class="gauge-label">Probabilidad<br>de riesgo alto</div>
-</div>
-</div>
-</div>
-
-<div>
-<div class="risk-title" style="color:{color};">
-{titulo}
-</div>
-
-<div class="risk-copy">
-{texto}
-</div>
-</div>
-
-</div>
-
-<div class="progress-label">
-<div>Probabilidad estimada</div>
-<div>{prob_pct}%</div>
-</div>
-
-<div class="custom-progress">
-<div class="custom-progress-fill" style="width:{prob_pct}%; background:{color};"></div>
-</div>
-
-</div>
-""", unsafe_allow_html=True)
+    # =====================================================
+    # RESULTADO
+    # =====================================================
 
     st.markdown(f"""
-<div class="cyber-card">
-<div class="card-title">
-INTERPRETACIÓN DEL ESCENARIO
-</div>
+    <div class="result-card">
 
-<div class="model-text">
-{insight_texto}
-</div>
-</div>
-""", unsafe_allow_html=True)
+    <div class="card-title">
+    RESULTADO DE LA PREDICCIÓN
+    </div>
+
+    <div class="result-grid">
+
+    <div>
+
+    <div class="gauge"
+    style="--percent:{prob_pct}%; --color:{color};">
+
+    <div class="gauge-inner">
+
+    <div class="gauge-number">
+    {prob_pct}%
+    </div>
+
+    <div class="gauge-label">
+    Probabilidad<br>de riesgo alto
+    </div>
+
+    </div>
+    </div>
+
+    </div>
+
+    <div>
+
+    <div class="risk-title"
+    style="color:{color};">
+
+    {titulo}
+
+    </div>
+
+    <div class="risk-copy">
+    {texto}
+    </div>
+
+    </div>
+
+    </div>
+
+    <div class="progress-label">
+
+    <div>
+    Probabilidad estimada
+    </div>
+
+    <div>
+    {prob_pct}%
+    </div>
+
+    </div>
+
+    <div class="custom-progress">
+
+    <div class="custom-progress-fill"
+    style="width:{prob_pct}%; background:{color};">
+    </div>
+
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    # =====================================================
+    # INTERPRETACIÓN
+    # =====================================================
 
     st.markdown(f"""
-<div class="cyber-card">
-<div class="card-title">
-CONFIANZA DEL MODELO
-</div>
+    <div class="cyber-card">
 
-<div class="insight-grid">
-<div>
-<div class="confidence-number">{confianza}%</div>
-<div class="model-text">{nivel_confianza}</div>
-</div>
+    <div class="card-title">
+    INTERPRETACIÓN DEL ESCENARIO
+    </div>
 
-<div class="model-text">
-{lectura_confianza}
-</div>
-</div>
-</div>
-""", unsafe_allow_html=True)
+    <div class="model-text">
+    {insight_texto}
+    </div>
 
-    try:
-        df_hist = pd.read_csv("siniestros.csv")
+    </div>
+    """, unsafe_allow_html=True)
 
-        if "LOCALIDAD" in df_hist.columns:
-            top_localidades = (
-                df_hist["LOCALIDAD"]
-                .value_counts()
-                .head(8)
-                .reset_index()
-            )
+    # =====================================================
+    # CONFIANZA DEL MODELO
+    # =====================================================
 
-            top_localidades.columns = ["Localidad", "Cantidad"]
+    st.markdown(f"""
+    <div class="cyber-card">
 
-            st.markdown("""
-<div class="cyber-card">
-<div class="card-title">
-ANÁLISIS HISTÓRICO DE REFERENCIA
-</div>
-</div>
-""", unsafe_allow_html=True)
+    <div class="card-title">
+    CONFIANZA DEL MODELO
+    </div>
 
-            st.bar_chart(
-                top_localidades,
-                x="Localidad",
-                y="Cantidad",
-                use_container_width=True
-            )
+    <div class="insight-grid">
 
-    except Exception:
-        st.markdown("""
-<div class="cyber-card">
-<div class="card-title">
-ANÁLISIS HISTÓRICO DE REFERENCIA
-</div>
+    <div>
 
-<div class="model-text">
-Para activar esta sección, agrega un archivo llamado <b>siniestros.csv</b>
-con una columna llamada <b>LOCALIDAD</b>. Con eso la app mostrará
-un ranking histórico de localidades con mayor número de registros.
-</div>
-</div>
-""", unsafe_allow_html=True)
+    <div class="confidence-number">
+    {confianza}%
+    </div>
+
+    <div class="model-text">
+    {nivel_confianza}
+    </div>
+
+    </div>
+
+    <div class="model-text">
+    {lectura_confianza}
+    </div>
+
+    </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+# =========================================================
+# FOOTER
+# =========================================================
 
 st.markdown("""
 <div class="footer-card">
+
 | Andres Felipe Cardona Ortegon |
 Proyecto de Analítica Aplicada |
-Universidad de La Sabana<br><br>
+Universidad de La Sabana
+
+<br><br>
 
 Integrantes:
+
 <span>Tomás González</span> •
 <span>Nicolás Castillo</span> •
 <span>Ana Rodríguez</span>
+
 </div>
 """, unsafe_allow_html=True)
