@@ -1,24 +1,30 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from datetime import datetime
 
-# ============================================================
-# CONFIGURACIÓN GENERAL
-# ============================================================
 st.set_page_config(
-    page_title="Riesgo Vial Bogotá | IA",
+    page_title="RiskAI Bogotá",
     page_icon="🚦",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ============================================================
-# ESTILOS CSS: OSCURO + TECNOLÓGICO + CORPORATIVO + NEÓN
-# ============================================================
+# =========================
+# CARGA DEL MODELO
+# =========================
+data = joblib.load("pipeline.pkl")
+
+modelo = data["modelo"]
+scaler = data["scaler"]
+columnas = data["columnas"]
+localidades = data["localidades"]
+
+# =========================
+# CSS
+# =========================
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
@@ -26,385 +32,488 @@ html, body, [class*="css"] {
 
 .stApp {
     background:
-        radial-gradient(circle at top left, rgba(0, 255, 213, 0.12), transparent 35%),
-        radial-gradient(circle at top right, rgba(120, 80, 255, 0.14), transparent 35%),
-        linear-gradient(135deg, #050816 0%, #080c18 45%, #0b1020 100%);
-    color: #EAF2FF;
+        radial-gradient(circle at top left, rgba(0,255,240,0.08), transparent 32%),
+        radial-gradient(circle at top right, rgba(0,120,255,0.08), transparent 35%),
+        linear-gradient(135deg, #020713 0%, #050B18 45%, #020713 100%);
+    color: #F8FAFC;
 }
 
 [data-testid="stHeader"] {
-    background: rgba(5, 8, 22, 0);
-}
-
-[data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #070B18 0%, #0B1020 100%);
-    border-right: 1px solid rgba(0, 255, 213, 0.16);
+    background: transparent;
 }
 
 .block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
     max-width: 1250px;
+    padding-top: 2rem;
 }
 
-.hero-card {
-    padding: 34px 36px;
-    border-radius: 28px;
-    background: linear-gradient(135deg, rgba(11, 18, 38, 0.96), rgba(15, 23, 42, 0.78));
-    border: 1px solid rgba(0, 255, 213, 0.18);
-    box-shadow: 0 0 35px rgba(0, 255, 213, 0.08), 0 18px 60px rgba(0,0,0,0.40);
-    margin-bottom: 28px;
+/* SIDEBAR */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #081120 0%, #07101E 100%);
+    border-right: 2px solid rgba(80, 140, 190, 0.35);
+    box-shadow: 0 0 22px rgba(0, 255, 240, 0.08);
 }
 
-.hero-title {
-    font-size: 3rem;
+[data-testid="stSidebar"] > div:first-child {
+    padding: 2rem 1.6rem;
+}
+
+.sidebar-title {
+    font-size: 1.85rem;
+    font-weight: 900;
+    margin-bottom: 2.2rem;
+    color: white;
+}
+
+.sidebar-title span {
+    color: #00FFF0;
+    text-shadow: 0 0 12px rgba(0,255,240,0.6);
+}
+
+.sidebar-copy {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #F1F5F9;
+    margin-bottom: 2rem;
+}
+
+.neon-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #00FFF0, transparent);
+    margin: 2rem 0;
+    position: relative;
+}
+
+.neon-divider::after {
+    content: "";
+    width: 9px;
+    height: 9px;
+    background: #00FFF0;
+    border-radius: 50%;
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    box-shadow: 0 0 14px #00FFF0;
+}
+
+.sidebar-section {
+    color: #00FFF0;
+    letter-spacing: 3px;
     font-weight: 800;
-    letter-spacing: -1.5px;
-    line-height: 1.05;
-    margin-bottom: 12px;
+    font-size: 0.9rem;
+    margin-bottom: 1.8rem;
 }
 
-.neon-text {
-    color: #00FFD5;
-    text-shadow: 0 0 18px rgba(0,255,213,0.38);
-}
-
-.hero-subtitle {
-    font-size: 1.1rem;
-    color: #DCE7FF;
-    max-width: 830px;
+.help-card {
+    margin-top: 5rem;
+    padding: 1.3rem;
+    border-radius: 18px;
+    background: rgba(0,255,240,0.10);
+    border: 1px solid rgba(0,255,240,0.35);
+    box-shadow: 0 0 20px rgba(0,255,240,0.08);
+    color: #CFFAFE;
     line-height: 1.6;
 }
 
-.badge {
-    display: inline-block;
-    padding: 8px 13px;
-    border-radius: 999px;
-    background: rgba(0,255,213,0.10);
-    color: #00FFD5;
-    border: 1px solid rgba(0,255,213,0.30);
-    font-size: 0.82rem;
-    font-weight: 700;
-    margin-bottom: 18px;
-}
-
-.glass-card {
-    padding: 24px;
-    border-radius: 24px;
-    background: rgba(18, 28, 52, 0.88);
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    box-shadow: 0 14px 40px rgba(0,0,0,0.28);
-    min-height: 100%;
-}
-
-.section-title {
-    font-size: 1.1rem;
-    font-weight: 750;
-    color: #FFFFFF;
-    margin-bottom: 8px;
-}
-
-.section-caption {
-    font-size: 0.92rem;
-    color: #D6E2FF;
-    margin-bottom: 22px;
-}
-
-.metric-card {
-    padding: 20px;
-    overflow-wrap: break-word;
-    border-radius: 22px;
-    background: linear-gradient(135deg, rgba(0,255,213,0.10), rgba(124,58,237,0.10));
-    border: 1px solid rgba(0,255,213,0.20);
-}
-
-.risk-high {
-    padding: 24px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(255, 55, 95, 0.20), rgba(127, 29, 29, 0.28));
-    border: 1px solid rgba(255, 55, 95, 0.45);
-    box-shadow: 0 0 32px rgba(255, 55, 95, 0.14);
-}
-
-.risk-low {
-    padding: 24px;
-    border-radius: 24px;
-    background: linear-gradient(135deg, rgba(0, 255, 149, 0.16), rgba(20, 83, 45, 0.26));
-    border: 1px solid rgba(0, 255, 149, 0.42);
-    box-shadow: 0 0 32px rgba(0, 255, 149, 0.12);
-}
-
-.risk-title {
-    font-size: 2rem;
-    font-weight: 850;
-    margin-bottom: 6px;
-}
-
-.risk-copy {
-    color: #C9D4EA;
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.footer {
-    margin-top: 35px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(148, 163, 184, 0.18);
-    color: #7C8AA5;
-    font-size: 0.88rem;
-}
-
-.stButton > button {
-    width: 100%;
-    border-radius: 16px;
-    border: 1px solid rgba(0,255,213,0.45);
-    background: linear-gradient(90deg, #00FFD5 0%, #7C3AED 100%);
-    color: #06101F;
-    font-weight: 800;
-    padding: 0.85rem 1rem;
-    box-shadow: 0 0 24px rgba(0,255,213,0.20);
-}
-
-.stButton > button:hover {
-    border: 1px solid rgba(255,255,255,0.75);
-    transform: translateY(-1px);
-}
-
-div[data-testid="stMetricValue"] {
-    color: #00FFD5;
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1.1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.stSlider [data-baseweb="slider"] > div {
-    color: #00FFD5;
-}
-
-/* SELECTBOX */
+/* INPUTS */
+.stSlider label,
 .stSelectbox label {
     color: #F8FAFC !important;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.stSlider {
+    margin-bottom: 2rem;
+}
+
+.stSelectbox {
+    margin-bottom: 2rem;
 }
 
 .stSelectbox div[data-baseweb="select"] > div {
-    background-color: rgba(255,255,255,0.92) !important;
-    color: #0F172A !important;
-    border-radius: 14px !important;
-    border: 1px solid rgba(0,255,213,0.25) !important;
-    font-weight: 600;
+    background: #07101E !important;
+    border: 1px solid rgba(0,255,240,0.75) !important;
+    border-radius: 12px !important;
+    color: white !important;
+    min-height: 58px;
+    font-weight: 700;
 }
 
-/* SLIDER LABELS */
-.stSlider label {
-    color: #F8FAFC !important;
-    font-weight: 600;
+.stSelectbox div[data-baseweb="select"] span {
+    color: white !important;
 }
 
-/* SIDEBAR TEXT */
-[data-testid="stSidebar"] * {
-    color: #EAF2FF;
+.stSlider [data-baseweb="slider"] div {
+    color: #FF4B5C;
 }
 
-/* MÉTRICAS */
-div[data-testid="metric-container"] {
-    background: rgba(15, 23, 42, 0.65);
-    padding: 12px;
+/* HERO */
+.top-label {
+    color: #00FFF0;
+    font-weight: 800;
+    letter-spacing: 6px;
+    font-size: 0.9rem;
+    margin-bottom: 2.2rem;
+}
+
+.main-title {
+    font-size: 2.8rem;
+    line-height: 1.25;
+    font-weight: 900;
+    color: white;
+    max-width: 760px;
+    margin-bottom: 2rem;
+}
+
+.main-title span {
+    color: #00FFF0;
+    text-shadow: 0 0 18px rgba(0,255,240,0.5);
+}
+
+.title-line {
+    width: 130px;
+    height: 2px;
+    background: linear-gradient(90deg, #00FFF0, transparent);
+    margin-bottom: 2.2rem;
+}
+
+/* CARDS */
+.cyber-card {
+    background: linear-gradient(135deg, rgba(8,17,32,0.94), rgba(7,15,29,0.88));
+    border: 1px solid rgba(0,255,240,0.35);
     border-radius: 18px;
-    border: 1px solid rgba(0,255,213,0.10);
+    padding: 2rem;
+    box-shadow: 0 0 25px rgba(0,255,240,0.06);
+    margin-bottom: 1.8rem;
 }
 
-div[data-testid="stMetricLabel"] {
-    color: #D6E2FF !important;
+.card-title {
+    color: #00FFF0;
+    letter-spacing: 3px;
+    font-weight: 900;
+    font-size: 0.95rem;
+    margin-bottom: 1.6rem;
+}
+
+.scenario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.3fr;
+    gap: 1.5rem;
+}
+
+.scenario-item {
+    border-right: 1px solid rgba(148,163,184,0.18);
+    padding-right: 1rem;
+}
+
+.scenario-item:last-child {
+    border-right: none;
+}
+
+.scenario-label {
+    color: #CBD5E1;
     font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.scenario-value {
+    color: white;
+    font-weight: 800;
+    font-size: 1.45rem;
+    line-height: 1.25;
+    word-break: normal;
+}
+
+.model-card {
+    border-left: 3px solid #00FFF0;
+}
+
+.model-text {
+    color: #F8FAFC;
+    line-height: 1.65;
+    font-size: 1.05rem;
+}
+
+.model-list {
+    margin-top: 1rem;
+    color: #F8FAFC;
+    line-height: 1.8;
+}
+
+/* BOTÓN */
+.stButton > button {
+    width: 100%;
+    height: 64px;
+    border-radius: 14px;
+    border: 1px solid #00FFF0;
+    background: rgba(0,255,240,0.04);
+    color: #00FFF0;
+    font-size: 1.2rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    box-shadow: 0 0 18px rgba(0,255,240,0.15);
+}
+
+.stButton > button:hover {
+    background: rgba(0,255,240,0.12);
+    color: white;
+    border: 1px solid #00FFF0;
+}
+
+/* RESULTADO */
+.result-card {
+    background: linear-gradient(135deg, rgba(20,10,25,0.95), rgba(8,14,28,0.92));
+    border: 1px solid rgba(255,75,92,0.45);
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: 0 0 25px rgba(255,75,92,0.12);
+    margin-top: 1.8rem;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.2fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+.gauge {
+    width: 165px;
+    height: 165px;
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at center, #081120 58%, transparent 59%),
+        conic-gradient(#FF4B5C var(--percent), rgba(71,85,105,0.45) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 22px rgba(255,75,92,0.35);
+}
+
+.gauge-inner {
+    text-align: center;
+}
+
+.gauge-number {
+    color: #FFB4BD;
+    font-size: 2.7rem;
+    font-weight: 900;
+}
+
+.gauge-label {
+    color: white;
     font-size: 0.9rem;
 }
+
+.risk-title {
+    color: #FF4B5C;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
 }
 
-[data-testid="stAlert"] {
-    border-radius: 18px;
-    border: 1px solid rgba(0,255,213,0.18);
-    background: rgba(0,255,213,0.08);
+.risk-copy {
+    color: #F8FAFC;
+    line-height: 1.65;
+    font-size: 1.05rem;
 }
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.7rem;
+    color: white;
+    font-weight: 600;
+}
+
+.custom-progress {
+    height: 12px;
+    background: rgba(71,85,105,0.5);
+    border-radius: 999px;
+    margin-top: 0.6rem;
+    overflow: hidden;
+}
+
+.custom-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #FF4B5C, #FF365E);
+    border-radius: 999px;
+    box-shadow: 0 0 16px rgba(255,75,92,0.8);
+}
+
+/* FOOTER */
+.footer-card {
+    margin-top: 1.8rem;
+    padding: 1.4rem 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(148,163,184,0.20);
+    background: rgba(8,17,32,0.75);
+    color: #E2E8F0;
+    text-align: center;
+}
+
+.footer-card span {
+    color: #00FFF0;
+    font-weight: 700;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# ============================================================
-# CARGA DEL MODELO
-# ============================================================
-@st.cache_resource
-def cargar_pipeline():
-    return joblib.load("pipeline.pkl")
-
-try:
-    data = cargar_pipeline()
-    modelo = data["modelo"]
-    scaler = data["scaler"]
-    columnas = data["columnas"]
-    localidades = data["localidades"]
-except Exception as e:
-    st.error("No fue posible cargar el archivo pipeline.pkl. Verifique que esté en la misma carpeta de la app.")
-    st.exception(e)
-    st.stop()
-
-# ============================================================
-# FUNCIONES AUXILIARES
-# ============================================================
-def clasificar_probabilidad(prob):
-    if prob >= 0.70:
-        return "Crítico", "🔴", "risk-high"
-    elif prob >= 0.50:
-        return "Alto", "🟠", "risk-high"
-    elif prob >= 0.30:
-        return "Moderado", "🟡", "risk-low"
-    else:
-        return "Bajo", "🟢", "risk-low"
-
-
-def construir_input(hora, mes, localidad):
-    input_data = pd.DataFrame(0, index=[0], columns=columnas)
-    input_data["HORA"] = hora
-    input_data["MES"] = mes
-
-    col_localidad = "LOCALIDAD_" + localidad
-    if col_localidad in input_data.columns:
-        input_data[col_localidad] = 1
-
-    input_data[["HORA", "MES"]] = scaler.transform(input_data[["HORA", "MES"]])
-    return input_data
-
-
-def recomendacion_operativa(prob, hora, localidad):
-    if prob >= 0.70:
-        return f"Priorizar monitoreo preventivo en {localidad}, reforzar presencia institucional y revisar puntos críticos durante la franja de las {hora}:00."
-    elif prob >= 0.50:
-        return f"Activar alerta temprana para {localidad}. Se recomienda revisar patrones históricos y condiciones operativas de movilidad."
-    elif prob >= 0.30:
-        return f"Mantener seguimiento. El riesgo no es extremo, pero puede aumentar si coinciden lluvia, congestión o eventos masivos."
-    return f"Condición de menor riesgo relativo. Mantener monitoreo básico y usar como referencia comparativa."
-
-# ============================================================
+# =========================
 # SIDEBAR
-# ============================================================
+# =========================
 with st.sidebar:
-    st.markdown("### 🚦 RiskAI Bogotá")
-    st.caption("Modelo predictivo para estimar riesgo de siniestros viales con víctimas.")
-    st.divider()
+    st.markdown("""
+    <div class="sidebar-title">🚦 <span>RiskAI</span> Bogotá</div>
+    <div class="sidebar-copy">
+        Modelo predictivo para estimar riesgo de siniestros viales con víctimas.
+    </div>
+    <div class="neon-divider"></div>
+    <div class="sidebar-section">PARÁMETROS DEL ESCENARIO</div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("#### Parámetros del escenario")
-    hora = st.slider("Hora del día", 0, 23, 12)
-    mes = st.selectbox("Mes", list(range(1, 13)), index=0)
-    localidad = st.selectbox("Localidad", localidades)
+    hora = st.slider("🕘 Hora del día", 0, 23, 12)
+    mes = st.selectbox("🗓️ Mes", list(range(1, 13)))
+    localidad = st.selectbox("📍 Localidad", localidades)
 
-    st.divider()
-    st.markdown("#### Lectura del modelo")
-    st.caption("La salida representa la probabilidad estimada de riesgo alto según las variables disponibles en el modelo.")
+    st.markdown("""
+    <div class="help-card">
+        ℹ️ &nbsp; Ajusta las condiciones del escenario y ejecuta la predicción para conocer el nivel de riesgo estimado.
+    </div>
+    """, unsafe_allow_html=True)
 
-# ============================================================
-# HERO
-# ============================================================
+# =========================
+# CONTENIDO PRINCIPAL
+# =========================
 st.markdown("""
-<div class="hero-card">
-    <div class="badge">IA APLICADA · MOVILIDAD · BOGOTÁ</div>
-    <div class="hero-title">Sistema Inteligente de <span class="neon-text">Riesgo Vial</span></div>
-    <div class="hero-subtitle">
-        Herramienta analítica para anticipar escenarios de mayor riesgo en siniestros viales de Bogotá.
-        Diseñada para convertir un modelo predictivo en una experiencia de decisión clara, visual y accionable.
+<div class="top-label">🛡️ SISTEMA INTELIGENTE DE RIESGO VIAL</div>
+
+<div class="main-title">
+    Predicción de riesgo de<br>
+    siniestros viales en <span>Bogotá</span>
+</div>
+
+<div class="title-line"></div>
+""", unsafe_allow_html=True)
+
+# Card escenario
+st.markdown(f"""
+<div class="cyber-card">
+    <div class="card-title">ESCENARIO SELECCIONADO</div>
+
+    <div class="scenario-grid">
+        <div class="scenario-item">
+            <div class="scenario-label">🕘 Hora</div>
+            <div class="scenario-value">{hora}:00</div>
+        </div>
+
+        <div class="scenario-item">
+            <div class="scenario-label">🗓️ Mes</div>
+            <div class="scenario-value">{mes}</div>
+        </div>
+
+        <div class="scenario-item">
+            <div class="scenario-label">📍 Localidad</div>
+            <div class="scenario-value">{localidad}</div>
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ============================================================
-# LAYOUT PRINCIPAL
-# ============================================================
-left, right = st.columns([1.05, 0.95], gap="large")
+# Lectura del modelo
+st.markdown("""
+<div class="cyber-card model-card">
+    <div class="card-title">⚙️ LECTURA DEL MODELO</div>
 
-with left:
-    st.markdown("""
-    <div class="glass-card">
-        <div class="section-title">Configurar escenario</div>
-        <div class="section-caption">Seleccione una combinación de tiempo y localidad para simular el nivel de riesgo.</div>
+    <div class="model-text">
+        La salida representa la probabilidad estimada de riesgo alto
+        según las variables disponibles en el modelo.
     </div>
-    """, unsafe_allow_html=True)
 
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.metric("Hora", f"{hora}:00")
-    with c2:
-        st.metric("Mes", mes)
-    with c3:
-        st.metric("Localidad", localidad.title())
-
-    st.markdown(" ")
-    predecir = st.button("Ejecutar predicción inteligente")
-
-with right:
-    st.markdown("""
-    <div class="glass-card">
-        <div class="section-title">Qué predice el sistema</div>
-        <div class="section-caption">
-            El modelo estima si un siniestro tendría mayor probabilidad de involucrar heridos o fallecidos, frente a un evento solo con daños.
-        </div>
+    <div class="model-list">
+        ☑ El modelo analiza patrones históricos de siniestros.<br>
+        ☑ Considera la hora, el mes y la localidad seleccionada.<br>
+        ☑ Útil para priorizar intervenciones y vigilancia vial.
     </div>
-    """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
 
-    st.info("Una buena app analítica no solo muestra una predicción: explica el escenario, comunica incertidumbre y orienta una decisión.")
+predecir = st.button("🔍  PREDECIR RIESGO")
 
-# ============================================================
+# =========================
 # PREDICCIÓN
-# ============================================================
+# =========================
 if predecir:
-    input_data = construir_input(hora, mes, localidad)
+    input_data = pd.DataFrame(0, index=[0], columns=columnas)
+
+    input_data["HORA"] = hora
+    input_data["MES"] = mes
+
+    col_localidad = "LOCALIDAD_" + localidad
+
+    if col_localidad in input_data.columns:
+        input_data[col_localidad] = 1
+
+    input_data[["HORA", "MES"]] = scaler.transform(input_data[["HORA", "MES"]])
+
     pred = modelo.predict(input_data)[0]
     prob = modelo.predict_proba(input_data)[0][1]
-    nivel, icono, clase_css = clasificar_probabilidad(prob)
-    recomendacion = recomendacion_operativa(prob, hora, localidad)
 
-    st.markdown("---")
-    st.markdown("### Resultado del análisis")
+    prob_pct = int(prob * 100)
 
-    r1, r2 = st.columns([0.95, 1.05], gap="large")
+    if pred == 1:
+        titulo = "⚠️ RIESGO ALTO"
+        texto = "El modelo estima una mayor probabilidad de que el siniestro involucre heridos o fallecidos."
+        color = "#FF4B5C"
+    else:
+        titulo = "✅ RIESGO BAJO"
+        texto = "El modelo estima una mayor probabilidad de que el siniestro sea solo con daños."
+        color = "#00FFF0"
 
-    with r1:
-        st.markdown(f"""
-        <div class="{clase_css}">
-            <div class="risk-title">{icono} Riesgo {nivel}</div>
-            <div class="risk-copy">
-                Probabilidad estimada de riesgo alto: <strong>{prob*100:.2f}%</strong><br><br>
-                {recomendacion}
+    st.markdown(f"""
+    <div class="result-card">
+        <div class="card-title">RESULTADO DE LA PREDICCIÓN</div>
+
+        <div class="result-grid">
+            <div>
+                <div class="gauge" style="--percent: {prob_pct}%;">
+                    <div class="gauge-inner">
+                        <div class="gauge-number">{prob_pct}%</div>
+                        <div class="gauge-label">Probabilidad<br>de riesgo alto</div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="risk-title" style="color:{color};">{titulo}</div>
+                <div class="risk-copy">{texto}</div>
             </div>
         </div>
-        """, unsafe_allow_html=True)
 
-    with r2:
-        st.markdown("<div class='metric-card'>", unsafe_allow_html=True)
-        st.metric("Probabilidad estimada", f"{prob*100:.2f}%")
-        st.progress(int(prob * 100))
-        st.caption("Interpretación: valores más altos sugieren mayor probabilidad de que el siniestro involucre víctimas.")
-        st.markdown("</div>", unsafe_allow_html=True)
+        <div class="progress-label">
+            <div>Probabilidad estimada</div>
+            <div>{prob_pct}%</div>
+        </div>
 
-    st.markdown("### Lectura ejecutiva")
-    st.write(
-        f"Para la localidad **{localidad.title()}**, durante el mes **{mes}** y a las **{hora}:00**, "
-        f"el sistema clasifica el escenario como **riesgo {nivel.lower()}**. "
-        "Esta salida debe entenderse como apoyo a la decisión, no como una certeza absoluta."
-    )
+        <div class="custom-progress">
+            <div class="custom-progress-fill" style="width:{prob_pct}%; background:{color};"></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
-else:
-    st.markdown("---")
-    st.markdown("### Esperando simulación")
-    st.caption("Ajuste los parámetros en la barra lateral y ejecute la predicción para visualizar el resultado.")
-
-# ============================================================
-# PIE DE PÁGINA
-# ============================================================
+# =========================
+# FOOTER
+# =========================
 st.markdown("""
-<div class="footer">
-    <strong>Proyecto de Analítica Aplicada · Universidad de La Sabana</strong><br>
-    Integrantes: Tomás González · Nicolás Castillo · Ana Rodríguez<br>
-    Versión conceptual V2 · Enfoque: predicción, comunicación del riesgo y apoyo a decisiones públicas.
+<div class="footer-card">
+    🎓 Proyecto de Analítica Aplicada &nbsp; | &nbsp;
+    Universidad de La Sabana<br>
+    Integrantes:
+    <span>Tomás González</span> ·
+    <span>Nicolás Castillo</span> ·
+    <span>Ana Rodríguez</span>
 </div>
 """, unsafe_allow_html=True)
