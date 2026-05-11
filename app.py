@@ -301,7 +301,7 @@ html, body, [class*="css"] {
 
 with st.sidebar:
     st.markdown("""
-<div class="sidebar-title">🚦 <span>RiskAI</span> Bogotá</div>
+<div class="sidebar-title">🚦 <span>Siniestros viales </span> Bogotá</div>
 
 <div class="sidebar-copy">
 Modelo predictivo para estimar riesgo de siniestros viales con víctimas.
