@@ -365,7 +365,7 @@ st.markdown(f"""
 
 <div class="scenario-item">
 <div class="scenario-label"> Mes</div>
-<div class="scenario-value">{mes}</div>
+<div class="scenario-value">{mes_nombre}</div>
 </div>
 
 <div class="scenario-item">
