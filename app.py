@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 
 st.set_page_config(
-    page_title=" Bogotá",
+    page_title=" Siniestros viales en Bogotá",
     page_icon="🚦",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -304,7 +304,7 @@ with st.sidebar:
 <div class="sidebar-title">🚦 <span>Siniestros viales </span> Bogotá</div>
 
 <div class="sidebar-copy">
-Modelo predictivo para estimar riesgo de siniestros viales con víctimas.
+Modelo predictivo para estimar el riesgo de siniestros viales con víctimas.
 </div>
 
 <div class="neon-divider"></div>
@@ -312,18 +312,18 @@ Modelo predictivo para estimar riesgo de siniestros viales con víctimas.
 <div class="sidebar-section">PARÁMETROS DEL ESCENARIO</div>
 """, unsafe_allow_html=True)
 
-    hora = st.slider("🕘 Hora del día", 0, 23, 12)
-    mes = st.selectbox("🗓️ Mes", list(range(1, 13)))
-    localidad = st.selectbox("📍 Localidad", localidades)
+    hora = st.slider(" Hora del día", 0, 23, 12)
+    mes = st.selectbox(" Mes", list(range(1, 13)))
+    localidad = st.selectbox(" Localidad", localidades)
 
     st.markdown("""
 <div class="help-card">
-ℹ️ Ajusta las condiciones del escenario y ejecuta la predicción para conocer el nivel de riesgo estimado.
+ Ajusta las condiciones del escenario que perfieras y ejecuta la predicción para conocer el nivel de riesgo estimado.
 </div>
 """, unsafe_allow_html=True)
 
 st.markdown("""
-<div class="top-label">🛡️ SISTEMA INTELIGENTE DE RIESGO VIAL</div>
+<div class="top-label"> SISTEMA INTELIGENTE DE RIESGO VIAL</div>
 
 <div class="main-title">
 Predicción de riesgo de<br>
@@ -339,17 +339,17 @@ st.markdown(f"""
 
 <div class="scenario-grid">
 <div class="scenario-item">
-<div class="scenario-label">🕘 Hora</div>
+<div class="scenario-label"> Hora</div>
 <div class="scenario-value">{hora}:00</div>
 </div>
 
 <div class="scenario-item">
-<div class="scenario-label">🗓️ Mes</div>
+<div class="scenario-label"> Mes</div>
 <div class="scenario-value">{mes}</div>
 </div>
 
 <div class="scenario-item">
-<div class="scenario-label">📍 Localidad</div>
+<div class="scenario-label"> Localidad</div>
 <div class="scenario-value">{localidad}</div>
 </div>
 </div>
@@ -372,7 +372,7 @@ La salida representa la probabilidad estimada de riesgo alto según las variable
 </div>
 """, unsafe_allow_html=True)
 
-predecir = st.button("🔍  PREDECIR RIESGO")
+predecir = st.button("  Predice el RIESGO")
 
 if predecir:
 
@@ -435,7 +435,7 @@ if predecir:
 
 st.markdown("""
 <div class="footer-card">
-🎓 Proyecto de Analítica Aplicada | Universidad de La Sabana<br><br>
+| Andres Felipe Cardona Ortegon |  Proyecto de Analítica Aplicada | Universidad de La Sabana<br><br>
 Integrantes:
 <span>Tomás González</span> •
 <span>Nicolás Castillo</span> •
