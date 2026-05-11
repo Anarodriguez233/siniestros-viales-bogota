@@ -372,7 +372,7 @@ La salida representa la probabilidad estimada de riesgo alto según las variable
 </div>
 """, unsafe_allow_html=True)
 
-predecir = st.button("  Predice el RIESGO")
+predecir = st.button("  PREDECIR EL RIESGO")
 
 if predecir:
 
