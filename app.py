@@ -172,8 +172,9 @@ html, body, [class*="css"] {
 
 div[data-testid="stMetricValue"] {
     color: #00FFD5;
-    font-size: 3rem;
-    font-weight: 800;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -211,7 +212,7 @@ div[data-testid="stMetricValue"] {
 /* MÉTRICAS */
 div[data-testid="metric-container"] {
     background: rgba(15, 23, 42, 0.65);
-    padding: 16px;
+    padding: 12px;
     border-radius: 18px;
     border: 1px solid rgba(0,255,213,0.10);
 }
@@ -219,7 +220,7 @@ div[data-testid="metric-container"] {
 div[data-testid="stMetricLabel"] {
     color: #D6E2FF !important;
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 }
 
@@ -407,5 +408,4 @@ st.markdown("""
     Versión conceptual V2 · Enfoque: predicción, comunicación del riesgo y apoyo a decisiones públicas.
 </div>
 """, unsafe_allow_html=True)
-
 
