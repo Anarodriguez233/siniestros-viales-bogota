@@ -3,7 +3,7 @@ import pandas as pd
 import joblib
 
 st.set_page_config(
-    page_title="RiskAI Bogotá",
+    page_title=" Bogotá",
     page_icon="🚦",
     layout="wide",
     initial_sidebar_state="expanded"
