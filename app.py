@@ -313,32 +313,34 @@ Modelo predictivo para estimar el riesgo de siniestros viales con víctimas.
 """, unsafe_allow_html=True)
 
     hora = st.slider(" Hora del día", 0, 23, 12)
+
     meses = {
-    "Enero": 1,
-    "Febrero": 2,
-    "Marzo": 3,
-    "Abril": 4,
-    "Mayo": 5,
-    "Junio": 6,
-    "Julio": 7,
-    "Agosto": 8,
-    "Septiembre": 9,
-    "Octubre": 10,
-    "Noviembre": 11,
-    "Diciembre": 12
-}
+        "Enero": 1,
+        "Febrero": 2,
+        "Marzo": 3,
+        "Abril": 4,
+        "Mayo": 5,
+        "Junio": 6,
+        "Julio": 7,
+        "Agosto": 8,
+        "Septiembre": 9,
+        "Octubre": 10,
+        "Noviembre": 11,
+        "Diciembre": 12
+    }
 
-mes_nombre = st.selectbox(
-    " Mes",
-    list(meses.keys())
-)
+    mes_nombre = st.selectbox(
+        " Mes",
+        list(meses.keys())
+    )
 
-mes = meses[mes_nombre]
+    mes = meses[mes_nombre]
+
     localidad = st.selectbox(" Localidad", localidades)
 
     st.markdown("""
 <div class="help-card">
- Ajusta las condiciones del escenario que perfieras y ejecuta la predicción para conocer el nivel de riesgo estimado.
+ Ajusta las condiciones del escenario que prefieras y ejecuta la predicción para conocer el nivel de riesgo estimado.
 </div>
 """, unsafe_allow_html=True)
 
